@@ -1,5 +1,8 @@
-export const result4 = `
-WITH source AS (
+const demoExamples = [
+  {
+    prompt:
+      'Create a table that returns the following fields: company_id, is_headquarters, employees, estimated_age, is_b2b, is_b2c. Only return results for companies within 5 miles of San Francisco.',
+    result: `WITH source AS (
 
     SELECT *
     FROM {{ source('zoominfo', 'global') }}
@@ -33,6 +36,9 @@ WITH source AS (
     -- San Francisco latitude and longitude
     company_latitude BETWEEN 37.7080 and 37.8199
     AND company_longitude BETWEEN -122.5151 and -122.3568
-`
-
-export default {}
+`,
+    explanation:
+      'Note that this query will only return companies within a rectangular area defined by the minimum and maximum latitude and longitude coordinates. To return companies within a true 5-mile radius, a more complex query would be needed that takes into account the curvature of the Earth and uses a geospatial distance function.'
+  }
+]
+export default demoExamples

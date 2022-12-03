@@ -4,28 +4,26 @@ import { CopyBlock, atomOneLight } from 'react-code-blocks'
 import logo from './logo.svg'
 import './App.css'
 import { Button, Textarea, Text, Spacer } from '@geist-ui/core'
-import { result4 } from './examples'
+import { getCodexSQL } from './codexSql'
 
 function App () {
   const [isLoading, setIsLoading] = useState(false)
   const [schemaText, setSchemaText] = useState('')
   const [queryText, setQueryText] = useState('')
   const [resultText, setResultText] = useState('')
-
-  const getCodexSQL = async () => {
-    const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
-
-    await delay(2000)
-  }
+  const [explanationText, setExplanationText] = useState('')
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     setResultText('')
     console.log('submit')
     setIsLoading(true)
-    const result = await getCodexSQL()
-    console.log(result)
-    // setResultText(result.data.choices[0].text)
+    const response = await getCodexSQL(queryText)
+    console.log({ response })
+    if (response) {
+      setResultText(response.result)
+      setExplanationText(response.explanation)
+    }
     setIsLoading(false)
   }
   const onSchemaTextChange = (e: any) => {
@@ -76,26 +74,21 @@ function App () {
               🔮 Generate
             </Button>
           </div>
-          <div>
+          {resultText && (
             <div>
-              <CopyBlock
-                style={{ overflow: 'scroll', fontSize: '12px' }}
-                language={'sql'}
-                text={result4}
-                showLineNumbers={false}
-                theme={atomOneLight}
-              />
+              <div>
+                <CopyBlock
+                  style={{ overflow: 'scroll', fontSize: '12px' }}
+                  language={'sql'}
+                  text={resultText}
+                  showLineNumbers={false}
+                  theme={atomOneLight}
+                />
+              </div>
+              <Spacer />
+              <Text>{explanationText}</Text>
             </div>
-            <Spacer />
-            <Text>
-              Note that this query will only return companies within a
-              rectangular area defined by the minimum and maximum latitude and
-              longitude coordinates. To return companies within a true 5-mile
-              radius, a more complex query would be needed that takes into
-              account the curvature of the Earth and uses a geospatial distance
-              function.
-            </Text>
-          </div>
+          )}
         </form>
       </div>
     </main>
