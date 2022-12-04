@@ -3,8 +3,43 @@ import { useState } from 'react'
 import { CopyBlock, atomOneLight } from 'react-code-blocks'
 import logo from './logo.svg'
 import './App.css'
-import { Button, Textarea, Text, Spacer } from '@geist-ui/core'
+import {
+  Button,
+  Textarea,
+  Text,
+  Spacer,
+  Grid,
+  Card,
+  AutoComplete
+} from '@geist-ui/core'
 import { getCodexSQL } from './codexSql'
+
+// const COMMANDS = [
+//   { label: 'document' },
+//   { label: 'summarize' },
+//   { label: 'create table' },
+//   { label: 'define metric' },
+//   { label: 'edit code' }
+// ]
+
+// const CommandOptions = () => (
+//   <Grid.Container gap={1.5} style={{ margin: '8px' }}>
+//     {COMMANDS.map(command => (
+//       <Grid xs={7} key={command.label}>
+//         {/*@ts-ignore */}
+//         <Card type={'success'} width='100%'>
+//           <Text small my={0}>
+//             {command.label}
+//           </Text>
+//         </Card>
+//       </Grid>
+//     ))}
+//   </Grid.Container>
+// )
+// </Grid>
+// ))}
+// </Grid.Container>
+// )
 
 function App () {
   const [isLoading, setIsLoading] = useState(false)
@@ -38,12 +73,11 @@ function App () {
   return (
     <main
       style={{
-        display: 'flex',
-        justifyContent: 'center',
         padding: '10px',
         border: '1px solid red'
       }}
     >
+      <div style={{}}></div>
       <div
         style={{
           display: 'flex',

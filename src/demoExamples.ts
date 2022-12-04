@@ -1,4 +1,57 @@
-const demoExamples = [
+type Example = {
+  prompt: string
+  result: string
+  explanation: string
+}
+
+const demoExamples: Example[] = [
+  {
+    // Scenario 1: Summarize code
+    prompt: 'Explain this',
+    result: '',
+    explanation: `
+    This DBT schema file defines three models: mart_ci_runner_activity_monthly, mart_ci_runner_activity_daily, and mart_product_usage_free_user_metrics_monthly. Each model has a description and a list of columns, along with tests for some of the columns.
+
+    The mart_ci_runner_activity_monthly model contains information about monthly CI runner activity, including data about namespaces, plans, runners, pipelines, and stages.
+    
+    The mart_ci_runner_activity_daily model contains similar information, but at a daily granularity.
+    
+    The mart_product_usage_free_user_metrics_monthly model contains information about product usage by free trial users, including data about namespaces, CRM accounts, versions, and metrics related to user activity.
+    `
+  },
+  {
+    // Scenario 2: edit dbt code
+    prompt: 'Convert timezones to pst',
+    result: `
+  SELECT
+    fact.*,
+    dim_namespace.namespace_type AS ultimate_parent_namespace_type,
+    dim_namespace.namespace_is_internal,
+    dim_namespace.namespace_creator_is_blocked,
+    convert_timezone(dim_namespace.created_at, 'US/Pacific') AS namespace_created_at,
+    CAST(convert_timezone(dim_namespace.created_at, 'US/Pacific') AS DATE) AS namespace_created_date,
+    convert_timezone(dim_user.created_at, 'US/Pacific') AS user_created_at,
+    COALESCE(dim_project.is_learn_gitlab, FALSE) AS project_is_learn_gitlab,
+    COALESCE(dim_project.is_imported, FALSE) AS project_is_imported,
+    dim_date.first_day_of_month AS event_calendar_month,
+    dim_date.quarter_name AS event_calendar_quarter,
+    dim_date.year_actual AS event_calendar_year
+FROM fact
+LEFT JOIN dim_namespace
+    ON fact.dim_ultimate_parent_namespace_id = dim_namespace.dim_namespace_id
+LEFT JOIN dim_user
+    ON fact.dim_user_sk = dim_user.dim_user_sk
+LEFT JOIN dim_project
+    ON fact.dim_project_id = dim_project.dim_project_id
+LEFT JOIN dim_date
+    ON fact.dim_event_date_id = dim_date.date_id
+  `,
+    explanation: `
+  In the example above, the convert_timezone() function is used to convert the created_at field in the dim_namespace and dim_user tables to Pacific Time. The converted date/time is then stored in the namespace_created_at and user_created_at fields, respectively.
+
+  Keep in mind that the convert_timezone() function will only work correctly if the input date/time field is in a time zone that is recognized by dbt. If the input time zone is not recognized, the function will return the input date/time without converting it to the specified time zone.
+  `
+  },
   {
     // Scenario 3: Define a metric
     prompt: 'Define monthly recurring revenue',
@@ -72,6 +125,38 @@ This code defines the num_active_customers and arpc variables, which represent t
 `,
     explanation:
       'Note that this query will only return companies within a rectangular area defined by the minimum and maximum latitude and longitude coordinates. To return companies within a true 5-mile radius, a more complex query would be needed that takes into account the curvature of the Earth and uses a geospatial distance function.'
+  },
+  {
+    // scenario 5: add documentation to code
+    prompt: 'Add documentation to each column',
+    result: `sql
+    WITH sfdc_user AS (
+        SELECT *
+        FROM {{ ref(‘prep_crm_user’) }}
+        WHERE is_active = ‘TRUE’
+    ), final_sales_hierarchy AS (
+        SELECT DISTINCT
+          {{ dbt_utils.surrogate_key([‘crm_user_sales_segment_geo_region_area’]) }}   AS dim_crm_user_hierarchy_live_id,
+          dim_crm_user_sales_segment_id,
+          crm_user_sales_segment,
+          crm_user_sales_segment_grouped,
+          dim_crm_user_geo_id,
+          crm_user_geo,
+          dim_crm_user_region_id,
+          crm_user_region,
+          dim_crm_user_area_id,
+          crm_user_area,
+          crm_user_sales_segment_geo_region_area,
+          crm_user_sales_segment_region_grouped
+        FROM sfdc_user
+        WHERE crm_user_sales_segment IS NOT NULL
+          AND crm_user_geo IS NOT NULL
+          AND crm_user_region IS NOT NULL
+          AND crm_user_area IS NOT NULL
+          AND crm_user_region <> ‘Sales Admin’
+    )
+    `,
+    explanation: ''
   }
 ]
 export default demoExamples
