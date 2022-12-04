@@ -6,7 +6,7 @@ export const getCodexSQL = async (prompt: string) => {
   await delay(2000)
 
   const response = demoExamples.find(example =>
-    example.prompt.startsWith(prompt)
+    example.prompt.toLowerCase().startsWith(prompt)
   )
   if (!response) {
     return null
