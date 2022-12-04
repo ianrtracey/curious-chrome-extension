@@ -57,7 +57,7 @@ function App () {
     console.log({ response })
     if (response) {
       setResultText(response.result)
-      setExplanationText(response.explanation)
+      setExplanationText(response.explanation as any)
     }
     setIsLoading(false)
   }
@@ -74,15 +74,15 @@ function App () {
     <main
       style={{
         padding: '10px',
-        border: '1px solid red'
+        border: '1px solid red',
+        width: '450px',
+        minHeight: '600px'
       }}
     >
       <div style={{}}></div>
       <div
         style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
+          width: '100%',
           marginTop: '50px'
         }}
       >
@@ -95,7 +95,6 @@ function App () {
             onChange={onQueryTextChange}
             value={queryText}
             disabled={isLoading}
-            width='100%'
             placeholder=''
           />
           <div style={{ marginTop: '12px' }}>
@@ -109,7 +108,19 @@ function App () {
               🔮 Generate
             </Button>
           </div>
-          {explanationText && <Text>{explanationText}</Text>}
+          <Spacer />
+          {explanationText && (
+            <Card>
+              <Text h4 my={0}>
+                Explanation
+              </Text>
+              {/* @ts-ignore */}
+              {explanationText.map(block => (
+                <Text p>{block}</Text>
+              ))}
+            </Card>
+          )}
+
           {resultText && (
             <div>
               <div>
