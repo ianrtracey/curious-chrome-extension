@@ -55,13 +55,14 @@ function App () {
         <form onSubmit={handleSubmit}>
           <Textarea
             style={{
-              height: '150px'
+              height: '150px',
+              width: '350px'
             }}
             onChange={onQueryTextChange}
             value={queryText}
             disabled={isLoading}
             width='100%'
-            placeholder='write a function to add two numbers together'
+            placeholder=''
           />
           <div style={{ marginTop: '12px' }}>
             <Button
@@ -74,6 +75,7 @@ function App () {
               🔮 Generate
             </Button>
           </div>
+          {explanationText && <Text>{explanationText}</Text>}
           {resultText && (
             <div>
               <div>
@@ -86,7 +88,6 @@ function App () {
                 />
               </div>
               <Spacer />
-              <Text>{explanationText}</Text>
             </div>
           )}
         </form>

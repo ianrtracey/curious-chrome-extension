@@ -1,5 +1,6 @@
 const demoExamples = [
   {
+    // Scenario 4: Create a transformation to make data more readable
     prompt:
       'Create a table that returns the following fields: company_id, is_headquarters, employees, estimated_age, is_b2b, is_b2c. Only return results for companies within 5 miles of San Francisco.',
     result: `WITH source AS (
