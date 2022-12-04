@@ -1,7 +1,7 @@
 type Example = {
   prompt: string
   result: string
-  explanation: string
+  explanation: string[]
 }
 
 const demoExamples: Example[] = [
@@ -9,15 +9,12 @@ const demoExamples: Example[] = [
     // Scenario 1: Summarize code
     prompt: 'Explain this',
     result: '',
-    explanation: `
-    This DBT schema file defines three models: mart_ci_runner_activity_monthly, mart_ci_runner_activity_daily, and mart_product_usage_free_user_metrics_monthly. Each model has a description and a list of columns, along with tests for some of the columns.
-
-    The mart_ci_runner_activity_monthly model contains information about monthly CI runner activity, including data about namespaces, plans, runners, pipelines, and stages.
-    
-    The mart_ci_runner_activity_daily model contains similar information, but at a daily granularity.
-    
-    The mart_product_usage_free_user_metrics_monthly model contains information about product usage by free trial users, including data about namespaces, CRM accounts, versions, and metrics related to user activity.
-    `
+    explanation: [
+      'This DBT schema file defines three models: mart_ci_runner_activity_monthly, mart_ci_runner_activity_daily, and mart_product_usage_free_user_metrics_monthly. Each model has a description and a list of columns, along with tests for some of the columns.',
+      'The mart_ci_runner_activity_monthly model contains information about monthly CI runner activity, including data about namespaces, plans, runners, pipelines, and stages.',
+      'The mart_ci_runner_activity_daily model contains similar information, but at a daily granularity.',
+      'The mart_product_usage_free_user_metrics_monthly model contains information about product usage by free trial users, including data about namespaces, CRM accounts, versions, and metrics related to user activity.'
+    ]
   },
   {
     // Scenario 2: edit dbt code
@@ -46,11 +43,10 @@ LEFT JOIN dim_project
 LEFT JOIN dim_date
     ON fact.dim_event_date_id = dim_date.date_id
   `,
-    explanation: `
-  In the example above, the convert_timezone() function is used to convert the created_at field in the dim_namespace and dim_user tables to Pacific Time. The converted date/time is then stored in the namespace_created_at and user_created_at fields, respectively.
-
-  Keep in mind that the convert_timezone() function will only work correctly if the input date/time field is in a time zone that is recognized by dbt. If the input time zone is not recognized, the function will return the input date/time without converting it to the specified time zone.
-  `
+    explanation: [
+      'In the example above, the convert_timezone() function is used to convert the created_at field in the dim_namespace and dim_user tables to Pacific Time. The converted date/time is then stored in thenamespace_created_at and user_created_at fields, respectively.',
+      'Keep in mind that the convert_timezone() function will only work correctly if the input date/time field is in a time zone that is recognized by dbt. If the input time zone is not recognized, the function will return the input date/time without converting it to the specified time zone.'
+    ]
   },
   {
     // Scenario 3: Define a metric
@@ -78,11 +74,10 @@ LEFT JOIN dim_date
      {{ num_active_customers }} * {{ arpc }} AS monthly_recurring_revenue
   FROM fct_crm_account
 `,
-    explanation: `
-  Monthly recurring revenue is the amount of money a company expects to receive on a regular basis from its customers. This can be calculated by multiplying the number of active customers by the average revenue per customer (ARPC) for a given period, typically a month. To define monthly recurring revenue in the given dbt model, you could add a new metric that calculates the monthly recurring revenue for each day.
-\n
-This code defines the num_active_customers and arpc variables, which represent the number of active customers and the average revenue per customer, respectively. It then calculates the monthly recurring revenue by multiplying these two values and returns the result for each day in the fct_crm_account table. You could then include this code in a dbt_metrics block to define the monthly_recurring_revenue metric.
-`
+    explanation: [
+      'Monthly recurring revenue is the amount of money a company expects to receive on a regular basis from its customers. This can be calculated by multiplying the number of active customers by the average revenue per customer (ARPC) for a given period, typically a month. To define monthly recurring revenue in the given dbt model, you could add a new metric that calculates the monthly recurring revenue for each day.',
+      'This code defines the num_active_customers and arpc variables, which represent the number of active customers and the average revenue per customer, respectively. It then calculates the monthly recurring revenue by multiplying these two values and returns the result for each day in the fct_crm_account table. You could then include this code in a dbt_metrics block to define the monthly_recurring_revenue metric.'
+    ]
   },
   {
     // Scenario 4: Create a transformation to make data more readable
@@ -123,8 +118,9 @@ This code defines the num_active_customers and arpc variables, which represent t
     company_latitude BETWEEN 37.7080 and 37.8199
     AND company_longitude BETWEEN -122.5151 and -122.3568
 `,
-    explanation:
+    explanation: [
       'Note that this query will only return companies within a rectangular area defined by the minimum and maximum latitude and longitude coordinates. To return companies within a true 5-mile radius, a more complex query would be needed that takes into account the curvature of the Earth and uses a geospatial distance function.'
+    ]
   },
   {
     // scenario 5: add documentation to code
@@ -156,7 +152,7 @@ This code defines the num_active_customers and arpc variables, which represent t
           AND crm_user_region <> ‘Sales Admin’
     )
     `,
-    explanation: ''
+    explanation: []
   }
 ]
 export default demoExamples
