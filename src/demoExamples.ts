@@ -23,19 +23,19 @@ const demoExamples: Example[] = [
     id: 'edit_code',
     prompt: 'Convert timezones to pst',
     result: `
-  SELECT
-    fact.*,
-    dim_namespace.namespace_type AS ultimate_parent_namespace_type,
-    dim_namespace.namespace_is_internal,
-    dim_namespace.namespace_creator_is_blocked,
-    convert_timezone(dim_namespace.created_at, 'US/Pacific') AS namespace_created_at,
-    CAST(convert_timezone(dim_namespace.created_at, 'US/Pacific') AS DATE) AS namespace_created_date,
-    convert_timezone(dim_user.created_at, 'US/Pacific') AS user_created_at,
-    COALESCE(dim_project.is_learn_gitlab, FALSE) AS project_is_learn_gitlab,
-    COALESCE(dim_project.is_imported, FALSE) AS project_is_imported,
-    dim_date.first_day_of_month AS event_calendar_month,
-    dim_date.quarter_name AS event_calendar_quarter,
-    dim_date.year_actual AS event_calendar_year
+SELECT
+  fact.*,
+  dim_namespace.namespace_type AS ultimate_parent_namespace_type,
+  dim_namespace.namespace_is_internal,
+  dim_namespace.namespace_creator_is_blocked,
+  convert_timezone(dim_namespace.created_at, 'US/Pacific') AS namespace_created_at,
+  CAST(convert_timezone(dim_namespace.created_at, 'US/Pacific') AS DATE) AS namespace_created_date,
+  convert_timezone(dim_user.created_at, 'US/Pacific') AS user_created_at,
+  COALESCE(dim_project.is_learn_gitlab, FALSE) AS project_is_learn_gitlab,
+  COALESCE(dim_project.is_imported, FALSE) AS project_is_imported,
+  dim_date.first_day_of_month AS event_calendar_month,
+  dim_date.quarter_name AS event_calendar_quarter,
+  dim_date.year_actual AS event_calendar_year
 FROM fact
 LEFT JOIN dim_namespace
     ON fact.dim_ultimate_parent_namespace_id = dim_namespace.dim_namespace_id
@@ -47,7 +47,7 @@ LEFT JOIN dim_date
     ON fact.dim_event_date_id = dim_date.date_id
   `,
     explanation: [
-      'In the example above, the convert_timezone() function is used to convert the created_at field in the dim_namespace and dim_user tables to Pacific Time. The converted date/time is then stored in thenamespace_created_at and user_created_at fields, respectively.',
+      'In the example below, the convert_timezone() function is used to convert the created_at field in the dim_namespace and dim_user tables to Pacific Time. The converted date/time is then stored in thenamespace_created_at and user_created_at fields, respectively.',
       'Keep in mind that the convert_timezone() function will only work correctly if the input date/time field is in a time zone that is recognized by dbt. If the input time zone is not recognized, the function will return the input date/time without converting it to the specified time zone.'
     ]
   },
