@@ -1,4 +1,5 @@
 type Example = {
+  id: string
   prompt: string
   result: string
   explanation: string[]
@@ -7,6 +8,7 @@ type Example = {
 const demoExamples: Example[] = [
   {
     // Scenario 1: Summarize code
+    id: 'explain_this',
     prompt: 'Explain this',
     result: '',
     explanation: [
@@ -18,6 +20,7 @@ const demoExamples: Example[] = [
   },
   {
     // Scenario 2: edit dbt code
+    id: 'edit_code',
     prompt: 'Convert timezones to pst',
     result: `
   SELECT
@@ -50,6 +53,7 @@ LEFT JOIN dim_date
   },
   {
     // Scenario 3: Define a metric
+    id: 'define_metric',
     prompt: 'Define monthly recurring revenue',
     result: `
 
@@ -81,6 +85,7 @@ LEFT JOIN dim_date
   },
   {
     // Scenario 4: Create a transformation to make data more readable
+    id: 'create_table',
     prompt:
       'Create a table that returns the following fields: company_id, is_headquarters, employees, estimated_age, is_b2b, is_b2c. Only return results for companies within 5 miles of San Francisco',
     result: `WITH source AS (
@@ -124,6 +129,7 @@ LEFT JOIN dim_date
   },
   {
     // scenario 5: add documentation to code
+    id: 'add_documentation',
     prompt: 'Add documentation to each column',
     result: `sql
     WITH sfdc_user AS (

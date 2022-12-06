@@ -41,6 +41,18 @@ import { getCodexSQL } from './codexSql'
 // </Grid.Container>
 // )
 
+const Logo = () => (
+  <h1
+    style={{
+      fontFamily: 'Hanson-Bold',
+      fontSize: '18px',
+      opacity: '85%'
+    }}
+  >
+    Curious
+  </h1>
+)
+
 function App () {
   const [isLoading, setIsLoading] = useState(false)
   const [schemaText, setSchemaText] = useState('')
@@ -51,6 +63,7 @@ function App () {
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     setResultText('')
+    setExplanationText('')
     console.log('submit')
     setIsLoading(true)
     const response = await getCodexSQL(queryText)
@@ -74,68 +87,72 @@ function App () {
     <main
       style={{
         padding: '10px',
-        border: '1px solid red',
         width: '450px',
         minHeight: '600px'
       }}
     >
-      <div style={{}}></div>
+      <div style={{ textAlign: 'center' }}>
+        <Logo />
+      </div>
       <div
         style={{
           width: '100%',
-          marginTop: '50px'
+          marginTop: '25px'
         }}
       >
-        <form onSubmit={handleSubmit}>
-          <Textarea
+        <Textarea
+          style={{
+            height: '100px'
+          }}
+          width='100%'
+          onChange={onQueryTextChange}
+          value={queryText}
+          disabled={isLoading}
+          placeholder=''
+        />
+        <div style={{ marginTop: '12px' }}>
+          <Button
+            width='100%'
+            onClick={handleSubmit}
+            loading={isLoading}
+            type='secondary'
+          >
+            🔮 Generate
+          </Button>
+        </div>
+        <Spacer h={2} />
+        {explanationText && (
+          <div
             style={{
-              height: '150px',
-              width: '350px'
+              background: '#F5F5F5',
+              padding: '12px',
+              borderRadius: '10px'
             }}
-            onChange={onQueryTextChange}
-            value={queryText}
-            disabled={isLoading}
-            placeholder=''
-          />
-          <div style={{ marginTop: '12px' }}>
-            <Button
-              onClick={handleSubmit}
-              loading={isLoading}
-              type='secondary'
-              auto
-              scale={2 / 3}
-            >
-              🔮 Generate
-            </Button>
+          >
+            <Text h4 my={0}>
+              Explanation
+            </Text>
+            {/* @ts-ignore */}
+            {explanationText.map(block => (
+              <Text p>{block}</Text>
+            ))}
           </div>
-          <Spacer />
-          {explanationText && (
-            <Card>
-              <Text h4 my={0}>
-                Explanation
-              </Text>
-              {/* @ts-ignore */}
-              {explanationText.map(block => (
-                <Text p>{block}</Text>
-              ))}
-            </Card>
-          )}
-
-          {resultText && (
+        )}
+        <Spacer />
+        {resultText && (
+          <div>
             <div>
-              <div>
-                <CopyBlock
-                  style={{ overflow: 'scroll', fontSize: '12px' }}
-                  language={'sql'}
-                  text={resultText}
-                  showLineNumbers={false}
-                  theme={atomOneLight}
-                />
-              </div>
-              <Spacer />
+              <CopyBlock
+                style={{ overflow: 'scroll', fontSize: '12px' }}
+                language={'sql'}
+                text={resultText}
+                showLineNumbers={false}
+                theme={atomOneLight}
+              />
             </div>
-          )}
-        </form>
+            <Spacer />
+          </div>
+        )}
       </div>
     </main>
   )
