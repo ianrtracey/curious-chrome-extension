@@ -56,27 +56,26 @@ LEFT JOIN dim_date
     id: 'define_metric',
     prompt: 'Define monthly recurring revenue',
     result: `
+{% set num_active_customers = (
+  SELECT COUNT(DISTINCT dim_crm_account.dim_crm_account_id)
+  FROM dim_crm_account
+  WHERE dim_crm_account.parent_crm_account_billing_country_code IN ('US', 'CA')
+  AND dim_crm_account.parent_crm_account_is_active = 1
+  AND dim_crm_account.parent_crm_account_employee_count_band IS NOT NULL
+) %}
 
-    {% set num_active_customers = (
-      SELECT COUNT(DISTINCT dim_crm_account.dim_crm_account_id)
-      FROM dim_crm_account
-      WHERE dim_crm_account.parent_crm_account_billing_country_code IN ('US', 'CA')
-      AND dim_crm_account.parent_crm_account_is_active = 1
-      AND dim_crm_account.parent_crm_account_employee_count_band IS NOT NULL
-  ) %}
-  
-  {% set arpc = (
-      SELECT AVG(fct_crm_account.parent_crm_account_total_mrv)
-      FROM fct_crm_account
-      WHERE fct_crm_account.parent_crm_account_billing_country_code IN ('US', 'CA')
-      AND fct_crm_account.parent_crm_account_is_active = 1
-      AND fct_crm_account.parent_crm_account_employee_count_band IS NOT NULL
-  ) %}
-  
-  SELECT
-     fct_crm_account.report_date,
-     {{ num_active_customers }} * {{ arpc }} AS monthly_recurring_revenue
+{% set arpc = (
+  SELECT AVG(fct_crm_account.parent_crm_account_total_mrv)
   FROM fct_crm_account
+  WHERE fct_crm_account.parent_crm_account_billing_country_code IN ('US', 'CA')
+  AND fct_crm_account.parent_crm_account_is_active = 1
+  AND fct_crm_account.parent_crm_account_employee_count_band IS NOT NULL
+) %}
+
+SELECT
+  fct_crm_account.report_date,
+  {{ num_active_customers }} * {{ arpc }} AS monthly_recurring_revenue
+FROM fct_crm_account
 `,
     explanation: [
       'Monthly recurring revenue is the amount of money a company expects to receive on a regular basis from its customers. This can be calculated by multiplying the number of active customers by the average revenue per customer (ARPC) for a given period, typically a month. To define monthly recurring revenue in the given dbt model, you could add a new metric that calculates the monthly recurring revenue for each day.',
@@ -88,41 +87,41 @@ LEFT JOIN dim_date
     id: 'create_table',
     prompt:
       'Create a table that returns the following fields: company_id, is_headquarters, employees, estimated_age, is_b2b, is_b2c. Only return results for companies within 5 miles of San Francisco',
-    result: `WITH source AS (
+    result: `
+WITH source AS (
 
-    SELECT *
-    FROM {{ source('zoominfo', 'global') }}
-  
-  ),
-  
-  renamed AS (
-  
-    SELECT
-      zi_c_location_id::NUMBER AS location_id,
-      zi_c_company_id::NUMBER AS company_id,
-      zi_c_is_hq::BOOLEAN AS is_headquarters,
-      zi_c_latitude::FLOAT AS company_latitude,
-      zi_c_longitude::FLOAT AS company_longitude,
-      zi_c_employees::NUMBER AS employees,
-      zi_c_estimated_age::NUMBER AS estimated_age,
-      zi_c_is_b2b::BOOLEAN AS is_b2b,
-      zi_c_is_b2c::BOOLEAN AS is_b2c
-    FROM source
-  )
-  
+  SELECT *
+  FROM {{ source('zoominfo', 'global') }}
+
+),
+
+renamed AS (
+
   SELECT
-    company_id,
-    is_headquarters,
-    employees,
-    estimated_age,
-    is_b2b,
-    is_b2c
-  FROM renamed
-  WHERE
-    -- San Francisco latitude and longitude
-    company_latitude BETWEEN 37.7080 and 37.8199
-    AND company_longitude BETWEEN -122.5151 and -122.3568
-`,
+    zi_c_location_id::NUMBER AS location_id,
+    zi_c_company_id::NUMBER AS company_id,
+    zi_c_is_hq::BOOLEAN AS is_headquarters,
+    zi_c_latitude::FLOAT AS company_latitude,
+    zi_c_longitude::FLOAT AS company_longitude,
+    zi_c_employees::NUMBER AS employees,
+    zi_c_estimated_age::NUMBER AS estimated_age,
+    zi_c_is_b2b::BOOLEAN AS is_b2b,
+    zi_c_is_b2c::BOOLEAN AS is_b2c
+  FROM source
+)
+
+SELECT
+  company_id,
+  is_headquarters,
+  employees,
+  estimated_age,
+  is_b2b,
+  is_b2c
+FROM renamed
+WHERE
+  -- San Francisco latitude and longitude
+  company_latitude BETWEEN 37.7080 and 37.8199
+  AND company_longitude BETWEEN -122.5151 and -122.3568`,
     explanation: [
       'Note that this query will only return companies within a rectangular area defined by the minimum and maximum latitude and longitude coordinates. To return companies within a true 5-mile radius, a more complex query would be needed that takes into account the curvature of the Earth and uses a geospatial distance function.'
     ]
@@ -131,33 +130,46 @@ LEFT JOIN dim_date
     // scenario 5: add documentation to code
     id: 'add_documentation',
     prompt: 'Add documentation to each column',
-    result: `sql
-    WITH sfdc_user AS (
-        SELECT *
-        FROM {{ ref(‘prep_crm_user’) }}
-        WHERE is_active = ‘TRUE’
-    ), final_sales_hierarchy AS (
-        SELECT DISTINCT
-          {{ dbt_utils.surrogate_key([‘crm_user_sales_segment_geo_region_area’]) }}   AS dim_crm_user_hierarchy_live_id,
-          dim_crm_user_sales_segment_id,
-          crm_user_sales_segment,
-          crm_user_sales_segment_grouped,
-          dim_crm_user_geo_id,
-          crm_user_geo,
-          dim_crm_user_region_id,
-          crm_user_region,
-          dim_crm_user_area_id,
-          crm_user_area,
-          crm_user_sales_segment_geo_region_area,
-          crm_user_sales_segment_region_grouped
-        FROM sfdc_user
-        WHERE crm_user_sales_segment IS NOT NULL
-          AND crm_user_geo IS NOT NULL
-          AND crm_user_region IS NOT NULL
-          AND crm_user_area IS NOT NULL
-          AND crm_user_region <> ‘Sales Admin’
-    )
-    `,
+    result: `
+WITH sfdc_user AS (
+  SELECT *
+  FROM {{ ref('prep_crm_user') }}
+  WHERE is_active = 'TRUE'
+), final_sales_hierarchy AS (
+
+SELECT DISTINCT
+  {{ dbt_utils.surrogate_key(['crm_user_sales_segment_geo_region_area']) }}   AS dim_crm_user_hierarchy_live_id,
+  -- Surrogate key for the sales hierarchy
+  dim_crm_user_sales_segment_id,
+  -- Primary key for the sales segment
+  crm_user_sales_segment,
+  -- Sales segment name
+  crm_user_sales_segment_grouped,
+  -- Sales segment name grouped
+  dim_crm_user_geo_id,
+  -- Primary key for the geo
+  crm_user_geo,
+  -- Geo name
+  dim_crm_user_region_id,
+  -- Primary key for the region
+  crm_user_region,
+  -- Region name
+  dim_crm_user_area_id,
+  -- Primary key for the area
+  crm_user_area,
+  -- Area name
+  crm_user_sales_segment_geo_region_area,
+  -- Full hierarchy (sales segment > geo > region > area)
+  crm_user_sales_segment_region_grouped
+  -- Sales segment and region name grouped
+
+FROM sfdc_user
+WHERE crm_user_sales_segment IS NOT NULL
+  AND crm_user_geo IS NOT NULL
+  AND crm_user_region IS NOT NULL
+  AND crm_user_area IS NOT NULL
+  AND crm_user_region <> 'Sales Admin'
+)`,
     explanation: []
   }
 ]
