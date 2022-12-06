@@ -58,12 +58,12 @@ function App () {
   const [schemaText, setSchemaText] = useState('')
   const [queryText, setQueryText] = useState('')
   const [resultText, setResultText] = useState('')
-  const [explanationText, setExplanationText] = useState('')
+  const [explanationText, setExplanationText] = useState([])
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
     setResultText('')
-    setExplanationText('')
+    setExplanationText([])
     console.log('submit')
     setIsLoading(true)
     const response = await getCodexSQL(queryText)
@@ -121,7 +121,7 @@ function App () {
           </Button>
         </div>
         <Spacer h={2} />
-        {explanationText && (
+        {explanationText && explanationText.length > 0 && (
           <div
             style={{
               background: '#F5F5F5',
