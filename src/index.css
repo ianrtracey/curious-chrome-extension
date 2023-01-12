@@ -2,6 +2,10 @@
   font-family: 'Hanson-Bold';
   src: local('Hanson-Bold'), url('/public/fonts/Hanson-Bold.ttf') format('truetype')
 }
+@font-face {
+  font-family: 'CarterOne-Regular';
+  src: local('CarterOne-Regular'), url('/public/fonts/CarterOne-Regular.ttf') format('truetype')
+}
 
 html, body {
   margin: 0;

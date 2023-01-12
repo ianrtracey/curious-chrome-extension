@@ -44,12 +44,12 @@ import { getCodexSQL } from './codexSql'
 const Logo = () => (
   <h1
     style={{
-      fontFamily: 'Hanson-Bold',
+      fontFamily: 'CarterOne-Regular',
       fontSize: '18px',
       opacity: '85%'
     }}
   >
-    Curious
+    turntable
   </h1>
 )
 
